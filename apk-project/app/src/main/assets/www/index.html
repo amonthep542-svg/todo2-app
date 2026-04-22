@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#7c3aed"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="application-name" content="สิ่งที่ต้องทำ"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>สิ่งที่ต้องทำ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:sans-serif;background:#0f0f14;color:#f0edf8;min-height:100vh}
+button{font-family:sans-serif;cursor:pointer;border:none}
+button:active{opacity:.7}
+input,textarea{font-family:sans-serif}
+
+/* header */
+#hdr{background:#1a1025;padding:16px;border-bottom:1px solid #2a2040;position:sticky;top:0;z-index:10}
+#hdr h1{font-size:20px;font-weight:700;margin-bottom:12px}
+#tabs{display:flex;gap:0}
+.tab{flex:1;padding:8px;font-size:13px;font-weight:600;background:none;color:#6b6480;border-bottom:2px solid transparent}
+.tab.on{color:#a78bfa;border-bottom-color:#a78bfa}
+
+/* body */
+#body{padding:14px;padding-bottom:90px}
+.sec{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0 0 8px}
+
+/* card */
+.card{background:#1c1728;border:1.5px solid #3a2a5a;border-radius:12px;padding:12px;margin-bottom:8px;position:relative}
+.card.done{background:#16121f;border-color:#2a2040;opacity:.55}
+.cbar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.ctitle{font-size:14px;font-weight:600;margin-bottom:5px;padding-left:8px;line-height:1.4}
+.card.done .ctitle{text-decoration:line-through;color:#6b6480;padding-left:0}
+.cmeta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding-left:8px}
+.card.done .cmeta{padding-left:0}
+.ctag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.calarm{font-size:10px;color:#a78bfa;background:#7c3aed18;padding:2px 7px;border-radius:5px}
+.ctime{font-size:10px;color:#6b6480}
+.cbtns{display:flex;gap:5px;margin-top:8px;justify-content:flex-end}
+.btn-ok{padding:6px 14px;border-radius:8px;background:#22c55e22;color:#22c55e;border:1px solid #22c55e44;font-size:12px;font-weight:700}
+.btn-del{padding:6px 14px;border-radius:8px;background:#ef444415;color:#ef4444;border:1px solid #ef444430;font-size:12px;font-weight:700}
+
+/* fab */
+#fab{position:fixed;bottom:24px;right:16px;width:56px;height:56px;border-radius:50%;background:#7c3aed;color:#fff;font-size:26px;box-shadow:0 4px 20px #7c3aed66;display:flex;align-items:center;justify-content:center;z-index:20}
+
+/* modal */
+#modal{position:fixed;inset:0;background:#000a;z-index:30;display:none;align-items:flex-end;justify-content:center}
+#modal.on{display:flex}
+#mbox{background:#1a1530;border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-width:430px}
+#mbox h2{font-size:15px;font-weight:700;color:#c4b5fd;margin-bottom:16px}
+.fl{font-size:10px;color:#9f86c0;font-weight:700;letter-spacing:.5px;margin-bottom:4px}
+#mtxt{width:100%;padding:11px;border-radius:10px;background:#0f0f14;border:1.5px solid #2e2645;color:#f0edf8;font-size:14px;resize:none;height:70px;margin-bottom:12px}
+.crow{display:flex;gap:8px;margin-bottom:12px}
+.chalf{flex:1}
+#mdate,#mtime{width:100%;padding:9px 11px;border-radius:9px;background:#0f0f14;border:1.5px solid #2e2645;color:#f0edf8;font-size:13px;color-scheme:dark}
+#mcats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ccat{padding:5px 11px;border-radius:16px;font-size:11px;font-weight:700;background:#0f0f14;color:#6b6480;border:1.5px solid #2e2645}
+.ccat.on{border-color:var(--c);color:var(--c);background:color-mix(in srgb,var(--c) 20%,transparent)}
+#mhint{font-size:12px;color:#a78bfa;background:#7c3aed15;border:1px solid #7c3aed44;border-radius:8px;padding:8px 11px;margin-bottom:12px;display:none}
+#msave{width:100%;padding:13px;border-radius:12px;background:#7c3aed;color:#fff;font-size:15px;font-weight:700;margin-bottom:8px}
+#mcancel{width:100%;padding:10px;border-radius:12px;background:#ffffff10;color:#9f86c0;font-size:14px}
+
+/* notif bar */
+#nbar{background:#7c3aed18;border:1px solid #7c3aed44;border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+#nbar span{font-size:12px;color:#c4b5fd}
+#nbtn{padding:6px 12px;border-radius:8px;background:#7c3aed;color:#fff;font-size:12px;font-weight:700}
+
+/* toast */
+#toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:40;width:calc(100% - 24px);max-width:400px;background:#1e1040;border:2px solid #7c3aed;border-radius:16px;padding:14px;display:none}
+#toast.on{display:block}
+#ttext{font-size:15px;font-weight:700;margin-bottom:10px}
+.tbtns{display:flex;gap:8px}
+.tbtn1{flex:1;padding:10px;border-radius:9px;background:#22c55e;color:#fff;font-size:13px;font-weight:700}
+.tbtn2{flex:1;padding:10px;border-radius:9px;background:#ffffff13;color:#9f86c0;font-size:13px;font-weight:700}
+
+.empty{text-align:center;padding:60px 20px;color:#6b6480}
+.empty-i{font-size:48px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <h1>สิ่งที่ต้องทำ 📋</h1>
+  <div id="tabs">
+    <button class="tab on" onclick="setView('today')">วันนี้</button>
+    <button class="tab" onclick="setView('history')">ประวัติ</button>
+  </div>
+</div>
+
+<div id="body"></div>
+
+<button id="fab" onclick="openModal()">+</button>
+
+<div id="modal" onclick="if(event.target===this)closeModal()">
+  <div id="mbox">
+    <h2 id="mtitle">เพิ่มรายการใหม่</h2>
+    <div class="fl">สิ่งที่ต้องทำ</div>
+    <textarea id="mtxt" placeholder="เช่น รดน้ำต้นไม้..."></textarea>
+    <div class="fl">หมวดหมู่</div>
+    <div id="mcats"></div>
+    <div class="crow">
+      <div class="chalf">
+        <div class="fl">📅 วันที่</div>
+        <input type="date" id="mdate"/>
+      </div>
+      <div class="chalf">
+        <div class="fl">⏰ แจ้งเตือน</div>
+        <input type="time" id="mtime" oninput="updateHint()"/>
+      </div>
+    </div>
+    <div id="mhint">🔔 จะแจ้งเตือน — มีเสียง + สั่น</div>
+    <button id="msave" onclick="save()">+ เพิ่มรายการ</button>
+    <button id="mcancel" onclick="closeModal()">ยกเลิก</button>
+  </div>
+</div>
+
+<div id="toast">
+  <div id="ttext"></div>
+  <div class="tbtns">
+    <button class="tbtn1" onclick="toastDone()">✓ ทำแล้ว</button>
+    <button class="tbtn2" onclick="closeToast()">ปิด</button>
+  </div>
+</div>
+
+<script>
+var CATS=[
+  {id:"game", label:"🎮 เกม",   color:"#7c3aed"},
+  {id:"home", label:"🏠 บ้าน",  color:"#059669"},
+  {id:"hp",   label:"💪 สุขภาพ",color:"#dc2626"},
+  {id:"work", label:"💼 งาน",   color:"#d97706"},
+  {id:"etc",  label:"✨ อื่นๆ", color:"#0284c7"}
+];
+var tasks={}, view="today", selCat="etc", editId=null, editDk=null, toastId=null;
+
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function getCat(id){return CATS.find(function(c){return c.id===id})||CATS[4]}
+function hhmm(){var n=new Date();return n.getHours().toString().padStart(2,"0")+":"+n.getMinutes().toString().padStart(2,"0")}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+// Storage
+function load(){
+  try{
+    // ลอง load จาก Android native storage ก่อน (แม่นยำกว่า)
+    if(window.Android){
+      var r=Android.loadTasks();
+      tasks=r?JSON.parse(r):{};
+      // sync กลับไป localStorage ด้วย
+      localStorage.setItem("tasks2",JSON.stringify(tasks));
+      return;
+    }
+  }catch(e){}
+  try{var r=localStorage.getItem("tasks2");tasks=r?JSON.parse(r):{};}catch(e){tasks={};}
+}
+function save2(){
+  try{localStorage.setItem("tasks2",JSON.stringify(tasks));}catch(e){}
+  // sync to Android native storage
+  if(window.Android) try{Android.saveTasks(JSON.stringify(tasks));}catch(e){}
+}
+
+// Called from Android when user taps "ทำแล้ว" in notification
+function markDoneById(id){
+  var tk=todayKey();
+  if(tasks[tk]){
+    tasks[tk]=tasks[tk].map(function(t){return t.id===id?Object.assign({},t,{done:true,doneAt:new Date().toISOString()}):t});
+    save2(); render();
+  }
+}
+
+// Boot
+window.addEventListener("load",function(){
+  load();
+  buildCats();
+  document.getElementById("mdate").value=todayKey();
+  render();
+  setInterval(checkAlarms,30000);
+  checkAlarms();
+  checkNotifBar();
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+      swReg = reg;
+    }).catch(function(){});
+    // รับ message จาก SW
+    navigator.serviceWorker.addEventListener("message", function(e){
+      if(e.data && e.data.type === "RELOAD") { load(); render(); }
+      if(e.data && e.data.type === "DONE") { complete(todayKey(), e.data.taskId); }
+    });
+  }
+});
+
+function checkNotifBar(){
+  if(!("Notification" in window))return;
+  if(Notification.permission!=="granted"){
+    // show inline in render
+  }
+}
+
+function buildCats(){
+  var el=document.getElementById("mcats");
+  el.innerHTML="";
+  CATS.forEach(function(c){
+    var b=document.createElement("button");
+    b.className="ccat"+(c.id===selCat?" on":"");
+    b.style.setProperty("--c",c.color);
+    b.textContent=c.label;
+    b.onclick=function(){selCat=c.id;buildCats();};
+    el.appendChild(b);
+  });
+}
+
+function setView(v){
+  view=v;
+  document.querySelectorAll(".tab").forEach(function(t,i){
+    t.classList.toggle("on",(i===0&&v==="today")||(i===1&&v==="history"));
+  });
+  render();
+}
+
+function render(){
+  var el=document.getElementById("body");
+  var tk=todayKey();
+  var html="";
+
+  // notif bar
+  if("Notification" in window && Notification.permission!=="granted"){
+    html+='<div id="nbar"><span>🔔 เปิดแจ้งเตือนเพื่อรับ notification</span><button id="nbtn" onclick="askNotif()">เปิด</button></div>';
+  }
+
+  if(view==="today"){
+    var all=tasks[tk]||[];
+    var pen=all.filter(function(t){return !t.done});
+    var don=all.filter(function(t){return t.done});
+    if(all.length===0){
+      html+='<div class="empty"><div class="empty-i">📋</div><div>ยังไม่มีรายการวันนี้</div><div style="font-size:13px;margin-top:4px;color:#a78bfa">กด + เพื่อเพิ่ม</div></div>';
+    } else {
+      if(pen.length){
+        html+='<div class="sec" style="color:#ef4444">🔔 ยังไม่ได้ทำ ('+pen.length+')</div>';
+        pen.forEach(function(t){html+=cardHtml(t,tk);});
+      }
+      if(don.length){
+        html+='<div class="sec" style="color:#22c55e;margin-top:'+(pen.length?18:0)+'px">✅ ทำแล้ว ('+don.length+')</div>';
+        don.forEach(function(t){html+=cardHtml(t,tk);});
+      }
+    }
+  } else {
+    var dates=Object.keys(tasks).filter(function(d){return d!==tk}).sort().reverse();
+    if(!dates.length){
+      html+='<div class="empty"><div class="empty-i">🗂</div><div>ยังไม่มีประวัติ</div></div>';
+    } else {
+      dates.forEach(function(dk){
+        var dt=tasks[dk]||[];
+        var dc=dt.filter(function(t){return t.done}).length;
+        html+='<div style="margin-bottom:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:#c4b5fd">'+fmtDate(dk)+'</div><div style="font-size:11px;font-weight:700;color:'+(dc===dt.length?"#22c55e":"#ef4444")+'">'+dc+'/'+dt.length+' ✓</div></div>';
+        dt.forEach(function(t){html+=cardHtml(t,dk);});
+        html+='</div>';
+      });
+    }
+  }
+  el.innerHTML=html;
+  // bind buttons
+  var tk2=todayKey();
+  Object.keys(tasks).forEach(function(dk){
+    (tasks[dk]||[]).forEach(function(t){
+      var bd=document.getElementById("done-"+t.id);
+      if(bd)bd.onclick=function(){complete(dk,t.id);};
+      var be=document.getElementById("edit-"+t.id);
+      if(be)be.onclick=function(){openEdit(dk,t);};
+      var bx=document.getElementById("del-"+t.id);
+      if(bx)bx.onclick=function(){del(dk,t.id);};
+    });
+  });
+}
+
+function cardHtml(t,dk){
+  var cat=getCat(t.category);
+  var now=new Date();
+  var alarmTxt="";
+  if(t.alarm&&!t.done){
+    var dt=new Date(dk+"T"+t.alarm+":00");
+    var diff=dt-now;
+    if(diff>0){var m=Math.round(diff/60000);alarmTxt=m<60?"อีก "+m+" น.":"อีก "+Math.floor(m/60)+" ชม.";}
+    else alarmTxt="เลยเวลา";
+  }
+  return '<div class="card'+(t.done?" done":"")+'">'
+    +(!t.done?'<div class="cbar" style="background:'+cat.color+'"></div>':'')
+    +'<div class="ctitle">'+esc(t.text)+'</div>'
+    +'<div class="cmeta">'
+    +'<span class="ctag" style="background:'+cat.color+'22;color:'+cat.color+'">'+cat.label+'</span>'
+    +(t.alarm?'<span class="calarm">⏰ '+t.alarm+(alarmTxt?' · '+alarmTxt:'')+'</span>':'')
+    +(t.done&&t.doneAt?'<span class="ctime">✓ '+new Date(t.doneAt).toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"})+'</span>':'')
+    +'</div>'
+    +'<div class="cbtns">'
+    +(!t.done?'<button class="btn-ok" id="done-'+t.id+'">✓ ทำแล้ว</button>':'')
+    +'<button class="btn-del" id="edit-'+t.id+'">✎ แก้ไข</button>'
+    +'<button class="btn-del" id="del-'+t.id+'">✕ ลบ</button>'
+    +'</div></div>';
+}
+
+function fmtDate(ds){
+  var d=new Date(ds+"T00:00:00");
+  var wd=["อา","จ","อ","พ","พฤ","ศ","ส"];
+  var mo=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  var yk=new Date();yk.setDate(yk.getDate()-1);
+  if(ds===todayKey())return"วันนี้";
+  if(ds===yk.toISOString().slice(0,10))return"เมื่อวาน";
+  return wd[d.getDay()]+" "+d.getDate()+" "+mo[d.getMonth()]+" "+(d.getFullYear()+543);
+}
+
+// Modal
+function openModal(){
+  editId=null;editDk=null;
+  document.getElementById("mtitle").textContent="เพิ่มรายการใหม่";
+  document.getElementById("msave").textContent="+ เพิ่มรายการ";
+  document.getElementById("mtxt").value="";
+  document.getElementById("mdate").value=todayKey();
+  document.getElementById("mtime").value="";
+  selCat="etc";buildCats();updateHint();
+  document.getElementById("modal").classList.add("on");
+  setTimeout(function(){document.getElementById("mtxt").focus();},80);
+}
+function openEdit(dk,t){
+  editId=t.id;editDk=dk;
+  document.getElementById("mtitle").textContent="แก้ไขรายการ";
+  document.getElementById("msave").textContent="บันทึก";
+  document.getElementById("mtxt").value=t.text;
+  document.getElementById("mdate").value=dk;
+  document.getElementById("mtime").value=t.alarm||"";
+  selCat=t.category;buildCats();updateHint();
+  document.getElementById("modal").classList.add("on");
+}
+function closeModal(){document.getElementById("modal").classList.remove("on");}
+function updateHint(){
+  var v=document.getElementById("mtime").value;
+  var h=document.getElementById("mhint");
+  h.style.display=v?"block":"none";
+  if(v)h.textContent="🔔 แจ้งเตือน "+v+" น. — มีเสียง + สั่น";
+}
+
+function save(){
+  var text=document.getElementById("mtxt").value.trim();
+  if(!text){document.getElementById("mtxt").style.border="1.5px solid #ef4444";setTimeout(function(){document.getElementById("mtxt").style.border="1.5px solid #2e2645";},800);return;}
+  var date=document.getElementById("mdate").value||todayKey();
+  var alarm=document.getElementById("mtime").value;
+  if(editId){
+    if(editDk!==date){
+      tasks[editDk]=tasks[editDk].filter(function(t){return t.id!==editId});
+      if(!tasks[editDk].length)delete tasks[editDk];
+      if(!tasks[date])tasks[date]=[];
+      tasks[date].push({id:editId,text:text,category:selCat,alarm:alarm,done:false,doneAt:null});
+    } else {
+      tasks[editDk]=tasks[editDk].map(function(t){return t.id===editId?{...t,text:text,category:selCat,alarm:alarm}:t});
+    }
+  } else {
+    var id="t"+Date.now();
+    if(!tasks[date])tasks[date]=[];
+    tasks[date].push({id:id,text:text,category:selCat,alarm:alarm,done:false,doneAt:null});
+  }
+  save2();closeModal();render();
+  if(alarm){
+    askNotif();
+    // schedule native alarm
+    if(window.Android){
+      try{
+        var dateStr=date+"T"+alarm+":00";
+        var ms=new Date(dateStr).getTime();
+        var allIds=[];
+        if(editId) allIds=[editId]; else{ var dk2=date; allIds=[(tasks[dk2]||[]).slice(-1)[0].id]; }
+        Android.scheduleAlarm(allIds[0], text, ms);
+      }catch(e){}
+    }
+  }
+}
+
+function complete(dk,id){
+  tasks[dk]=tasks[dk].map(function(t){return t.id===id?{...t,done:true,doneAt:new Date().toISOString()}:t});
+  save2();render();
+  if(toastId===id)closeToast();
+}
+function del(dk,id){
+  tasks[dk]=tasks[dk].filter(function(t){return t.id!==id});
+  if(!tasks[dk].length)delete tasks[dk];
+  save2();render();
+  if(toastId===id)closeToast();
+}
+
+// Alarms
+var fired={}, swReg=null;
+function checkAlarms(){
+  var now=hhmm();var tk=todayKey();
+  (tasks[tk]||[]).forEach(function(t){
+    if(!t.done&&t.alarm===now&&!fired[t.id]){
+      fired[t.id]=1;
+      showToast(t);
+      playSound();
+      try{navigator.vibrate([300,100,300,100,500]);}catch(e){}
+      // ให้ SW ยิง notification (มีปุ่ม ทำแล้ว + ค้างใน bar)
+      if(swReg && swReg.active){
+        swReg.active.postMessage({type:"FIRE", task:{id:t.id, text:t.text}});
+      } else if(Notification&&Notification.permission==="granted"){
+        try{new Notification("🔔 "+t.text,{body:"ถึงเวลาแล้ว!",icon:"icon-192.png",vibrate:[300,100,300],tag:t.id,requireInteraction:true});}catch(e){}
+      }
+      setTimeout(function(){delete fired[t.id];},62000);
+    }
+  });
+}
+
+function showToast(t){
+  toastId=t.id;
+  document.getElementById("ttext").textContent="🔔 "+t.text;
+  document.getElementById("toast").classList.add("on");
+}
+function closeToast(){document.getElementById("toast").classList.remove("on");toastId=null;}
+function toastDone(){if(toastId)complete(todayKey(),toastId);closeToast();}
+
+function playSound(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [[523,0],[659,.18],[784,.36],[1047,.54],[784,.76],[1047,.94]].forEach(function(x){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type="sine";o.frequency.value=x[0];
+      g.gain.setValueAtTime(0,ctx.currentTime+x[1]);
+      g.gain.linearRampToValueAtTime(.4,ctx.currentTime+x[1]+.06);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+x[1]+.25);
+      o.start(ctx.currentTime+x[1]);o.stop(ctx.currentTime+x[1]+.3);
+    });
+    setTimeout(function(){ctx.close();},2000);
+  }catch(e){}
+}
+
+async function askNotif(){
+  if(!("Notification" in window)){alert("เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน");return;}
+  var r=await Notification.requestPermission();
+  render();
+}
+</script>
+</body>
+</html>
